@@ -57,3 +57,36 @@
 ## 合规说明
 
 测试环境占位内容不要求与正式品牌一致；**面向公众的正式站点**所展示的素材、文案、商标须合法授权，且以后台配置为准。若面向欧盟用户，需在正式内容与隐私流程中考虑 GDPR（同意、导出/删除等）。
+
+---
+
+## 仓库结构
+
+| 路径 | 说明 |
+|------|------|
+| `apps/web` | 前台站点（Next.js，端口 3000） |
+| `apps/admin` | 后台管理（Next.js，端口 3001） |
+| `apps/server` | API（Hono，端口 4000） |
+| `packages/database` | Prisma  schema、迁移与种子 |
+
+## 本地运行
+
+1. 安装依赖：`pnpm install`
+2. 启动 PostgreSQL：在项目根目录执行 `docker compose up -d`（或自备数据库并调整连接串）
+3. 环境变量：
+   - 复制根目录 `.env.example` 为 `.env`，按需修改 `JWT_SECRET` 等
+   - 复制 `packages/database/.env.example` 为 `packages/database/.env`，使 Prisma CLI 能读取 `DATABASE_URL`（勿提交该文件）
+4. 数据库：`pnpm run db:migrate` 然后 `pnpm run db:seed`
+5. 开发：在项目根目录执行 `pnpm dev`（同时启动 API、前台、后台）
+
+默认种子账号：`admin@example.com` / `admin123`（仅用于开发测试，上线前删除或改密）。
+
+## 构建
+
+`pnpm run build`（先编译 `@repo/database`，再构建各 app）
+
+## 当前能力简述
+
+- 前台：首页（`home` 页面块）、产品列表与详情、新闻列表与详情、联系表单（写入 `FormSubmission`）
+- 后台：登录（JWT）、页面/产品/新闻的增删改与发布开关、查看联系表单提交
+- 媒体：产品/新闻支持填写图片 URL（后续可接 OSS 上传）
