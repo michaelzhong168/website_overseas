@@ -85,14 +85,6 @@
 
 `pnpm run build`（先编译 `@repo/database`，再构建各 app）
 
-## GitHub 云端测试（CI）
-
-GitHub 不提供长期托管整站与数据库，但可以在 **GitHub Actions** 里做「云端构建 + 测试库迁移 + 种子 + lint + 类型检查 + 全量 build」，每次 push / PR 自动跑。
-
-工作流文件：`.github/workflows/ci.yml`（使用官方 `ubuntu-latest` 上的 PostgreSQL 服务容器）。
-
-若要在云上跑**可访问的预览站**，需要接第三方 PaaS（如 Vercel 部署 `web`/`admin`，API 与数据库另托管），或自建 Runner；本仓库 CI 仅验证构建与数据库脚本，不部署对外 URL。
-
 ## 当前能力简述
 
 - 前台：首页（`home` 页面块）、产品列表与详情、新闻列表与详情、联系表单（写入 `FormSubmission`）
