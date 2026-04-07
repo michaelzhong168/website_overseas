@@ -31,6 +31,8 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
         <nav>
           <Link href="/pages">Pages</Link>
           <Link href="/products">Products</Link>
+          <Link href="/projects">Projects</Link>
+          <Link href="/stores">Stores</Link>
           <Link href="/news">News</Link>
           <Link href="/submissions">Submissions</Link>
         </nav>

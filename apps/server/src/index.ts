@@ -62,6 +62,7 @@ const pageCreate = z.object({
   slug: z.string().min(1),
   title: z.string().min(1),
   body: z.string().optional(),
+  heroImageUrl: z.string().optional(),
   locale: z.string().optional(),
   published: z.boolean().optional(),
 });
@@ -84,6 +85,7 @@ app.post("/admin/pages", requireAuth, async (c) => {
       slug: parsed.data.slug,
       title: parsed.data.title,
       body: parsed.data.body ?? "",
+      heroImageUrl: parsed.data.heroImageUrl ?? "",
       locale: parsed.data.locale ?? "en",
       published: parsed.data.published ?? false,
     },
@@ -256,6 +258,138 @@ app.get("/admin/submissions", requireAuth, async (c) => {
   return c.json(rows);
 });
 
+const projectSchema = z.object({
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().optional(),
+  location: z.string().optional(),
+  coverUrl: z.string().optional(),
+  body: z.string().optional(),
+  locale: z.string().optional(),
+  published: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+});
+
+app.get("/admin/projects", requireAuth, async (c) => {
+  const locale = c.req.query("locale") ?? "en";
+  const rows = await prisma.project.findMany({
+    where: { locale },
+    orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+  });
+  return c.json(rows);
+});
+
+app.post("/admin/projects", requireAuth, async (c) => {
+  const body = await c.req.json().catch(() => null);
+  const parsed = projectSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "Invalid body" }, 400);
+  const row = await prisma.project.create({
+    data: {
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      subtitle: parsed.data.subtitle ?? "",
+      location: parsed.data.location ?? "",
+      coverUrl: parsed.data.coverUrl ?? "",
+      body: parsed.data.body ?? "",
+      locale: parsed.data.locale ?? "en",
+      published: parsed.data.published ?? false,
+      sortOrder: parsed.data.sortOrder ?? 0,
+    },
+  });
+  return c.json(row);
+});
+
+app.patch("/admin/projects/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => null);
+  const parsed = projectSchema.partial().safeParse(body);
+  if (!parsed.success) return c.json({ error: "Invalid body" }, 400);
+  try {
+    const row = await prisma.project.update({ where: { id }, data: parsed.data });
+    return c.json(row);
+  } catch {
+    return c.json({ error: "Not found" }, 404);
+  }
+});
+
+app.delete("/admin/projects/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  try {
+    await prisma.project.delete({ where: { id } });
+    return c.json({ ok: true });
+  } catch {
+    return c.json({ error: "Not found" }, 404);
+  }
+});
+
+const storeSchema = z.object({
+  slug: z.string().min(1),
+  name: z.string().min(1),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  hoursNote: z.string().optional(),
+  mapUrl: z.string().optional(),
+  locale: z.string().optional(),
+  published: z.boolean().optional(),
+  sortOrder: z.number().optional(),
+});
+
+app.get("/admin/stores", requireAuth, async (c) => {
+  const locale = c.req.query("locale") ?? "en";
+  const rows = await prisma.storeLocation.findMany({
+    where: { locale },
+    orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+  });
+  return c.json(rows);
+});
+
+app.post("/admin/stores", requireAuth, async (c) => {
+  const body = await c.req.json().catch(() => null);
+  const parsed = storeSchema.safeParse(body);
+  if (!parsed.success) return c.json({ error: "Invalid body" }, 400);
+  const row = await prisma.storeLocation.create({
+    data: {
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      city: parsed.data.city ?? "",
+      country: parsed.data.country ?? "",
+      address: parsed.data.address ?? "",
+      phone: parsed.data.phone ?? "",
+      hoursNote: parsed.data.hoursNote ?? "",
+      mapUrl: parsed.data.mapUrl ?? "",
+      locale: parsed.data.locale ?? "en",
+      published: parsed.data.published ?? false,
+      sortOrder: parsed.data.sortOrder ?? 0,
+    },
+  });
+  return c.json(row);
+});
+
+app.patch("/admin/stores/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json().catch(() => null);
+  const parsed = storeSchema.partial().safeParse(body);
+  if (!parsed.success) return c.json({ error: "Invalid body" }, 400);
+  try {
+    const row = await prisma.storeLocation.update({ where: { id }, data: parsed.data });
+    return c.json(row);
+  } catch {
+    return c.json({ error: "Not found" }, 404);
+  }
+});
+
+app.delete("/admin/stores/:id", requireAuth, async (c) => {
+  const id = c.req.param("id");
+  try {
+    await prisma.storeLocation.delete({ where: { id } });
+    return c.json({ ok: true });
+  } catch {
+    return c.json({ error: "Not found" }, 404);
+  }
+});
+
 app.get("/public/pages/:slug", async (c) => {
   const slug = c.req.param("slug");
   const locale = c.req.query("locale") ?? "en";
@@ -313,6 +447,52 @@ app.get("/public/news/:slug", async (c) => {
   const slug = c.req.param("slug");
   const locale = c.req.query("locale") ?? "en";
   const row = await prisma.newsPost.findFirst({
+    where: { slug, locale, published: true },
+  });
+  if (!row) return c.json({ error: "Not found" }, 404);
+  return c.json(row);
+});
+
+app.get("/public/projects", async (c) => {
+  const locale = c.req.query("locale") ?? "en";
+  const rows = await prisma.project.findMany({
+    where: { locale, published: true },
+    orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      subtitle: true,
+      location: true,
+      coverUrl: true,
+    },
+  });
+  return c.json(rows);
+});
+
+app.get("/public/projects/:slug", async (c) => {
+  const slug = c.req.param("slug");
+  const locale = c.req.query("locale") ?? "en";
+  const row = await prisma.project.findFirst({
+    where: { slug, locale, published: true },
+  });
+  if (!row) return c.json({ error: "Not found" }, 404);
+  return c.json(row);
+});
+
+app.get("/public/stores", async (c) => {
+  const locale = c.req.query("locale") ?? "en";
+  const rows = await prisma.storeLocation.findMany({
+    where: { locale, published: true },
+    orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+  });
+  return c.json(rows);
+});
+
+app.get("/public/stores/:slug", async (c) => {
+  const slug = c.req.param("slug");
+  const locale = c.req.query("locale") ?? "en";
+  const row = await prisma.storeLocation.findFirst({
     where: { slug, locale, published: true },
   });
   if (!row) return c.json({ error: "Not found" }, 404);

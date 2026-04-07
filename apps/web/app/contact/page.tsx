@@ -29,30 +29,32 @@ export default function ContactPage() {
   }
 
   return (
-    <>
-      <section className="hero">
-        <h1>Contact</h1>
-        <p className="muted">Messages are stored for admin review.</p>
+    <div className="lux-main">
+      <section className="lux-section" style={{ paddingTop: "3rem", maxWidth: "560px", margin: "0 auto" }}>
+        <h1 className="lux-section-title">Contact</h1>
+        <p className="muted" style={{ marginBottom: "2rem" }}>
+          Messages are stored for the studio to review.
+        </p>
+        <form className="stack" onSubmit={onSubmit}>
+          <label>
+            Name
+            <input name="name" required autoComplete="name" />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" required autoComplete="email" />
+          </label>
+          <label>
+            Message
+            <textarea name="message" required />
+          </label>
+          <button className="primary" type="submit" disabled={status === "loading"}>
+            {status === "loading" ? "Sending…" : "Send"}
+          </button>
+          {status === "ok" && <p className="muted">Sent. Thank you.</p>}
+          {status === "err" && <p className="muted">Could not send. Try again later.</p>}
+        </form>
       </section>
-      <form className="stack" onSubmit={onSubmit}>
-        <label>
-          Name
-          <input name="name" required autoComplete="name" />
-        </label>
-        <label>
-          Email
-          <input name="email" type="email" required autoComplete="email" />
-        </label>
-        <label>
-          Message
-          <textarea name="message" required />
-        </label>
-        <button className="primary" type="submit" disabled={status === "loading"}>
-          {status === "loading" ? "Sending…" : "Send"}
-        </button>
-        {status === "ok" && <p className="muted">Sent. Thank you.</p>}
-        {status === "err" && <p className="muted">Could not send. Try again later.</p>}
-      </form>
-    </>
+    </div>
   );
 }

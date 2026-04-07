@@ -87,6 +87,7 @@
 
 ## 当前能力简述
 
-- 前台：首页（`home` 页面块）、产品列表与详情、新闻列表与详情、联系表单（写入 `FormSubmission`）
-- 后台：登录（JWT）、页面/产品/新闻的增删改与发布开关、查看联系表单提交
-- 媒体：产品/新闻支持填写图片 URL（后续可接 OSS 上传）
+- 前台：高端家居展示风原创主题（占位品牌名可在代码中替换为客户端）；全屏首图 Hero（`home` 的 `heroImageUrl`）、Collections、Spaces（项目）、Journal（新闻）、Showrooms、Contact、Legal（`slug: legal`）
+- 后台：登录（JWT）、页面（含首图 URL）/产品/项目/展厅/新闻的增删改与发布开关、查看联系表单提交
+- 媒体：产品/项目/页面首图/新闻封面支持 URL；种子数据使用 Unsplash 示例图，正式环境请换自有或已授权素材
+- 数据库变更：若已有库，拉代码后执行 `pnpm run db:migrate` 再 `pnpm run db:seed`（或按需仅 migrate）

@@ -4,21 +4,23 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, getToken } from "@/lib/api";
 
-type PageRow = {
+type Row = {
   id: string;
   slug: string;
-  title: string;
+  name: string;
+  city: string;
+  country: string;
   published: boolean;
-  locale: string;
+  sortOrder: number;
 };
 
-export default function PagesAdmin() {
-  const [rows, setRows] = useState<PageRow[]>([]);
+export default function StoresAdmin() {
+  const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!getToken()) return;
-    const res = await apiFetch("/admin/pages?locale=en");
+    const res = await apiFetch("/admin/stores?locale=en");
     if (res.ok) setRows(await res.json());
     setLoading(false);
   }, []);
@@ -31,19 +33,29 @@ export default function PagesAdmin() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const slug = String(fd.get("slug") ?? "");
-    const title = String(fd.get("title") ?? "");
-    const body = String(fd.get("body") ?? "");
-    const heroImageUrl = String(fd.get("heroImageUrl") ?? "");
+    const name = String(fd.get("name") ?? "");
+    const city = String(fd.get("city") ?? "");
+    const country = String(fd.get("country") ?? "");
+    const address = String(fd.get("address") ?? "");
+    const phone = String(fd.get("phone") ?? "");
+    const hoursNote = String(fd.get("hoursNote") ?? "");
+    const mapUrl = String(fd.get("mapUrl") ?? "");
+    const sortOrder = Number(fd.get("sortOrder") ?? 0);
     const published = fd.get("published") === "on";
-    const res = await apiFetch("/admin/pages", {
+    const res = await apiFetch("/admin/stores", {
       method: "POST",
       body: JSON.stringify({
         slug,
-        title,
-        body,
-        heroImageUrl,
+        name,
+        city,
+        country,
+        address,
+        phone,
+        hoursNote,
+        mapUrl,
         locale: "en",
         published,
+        sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
       }),
     });
     if (res.ok) {
@@ -53,14 +65,14 @@ export default function PagesAdmin() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this page?")) return;
-    const res = await apiFetch(`/admin/pages/${id}`, { method: "DELETE" });
+    if (!confirm("Delete this store?")) return;
+    const res = await apiFetch(`/admin/stores/${id}`, { method: "DELETE" });
     if (res.ok) load();
   }
 
   return (
     <>
-      <h1>Pages</h1>
+      <h1>Showrooms</h1>
       {loading ? (
         <p className="muted">Loading…</p>
       ) : (
@@ -68,7 +80,9 @@ export default function PagesAdmin() {
           <thead>
             <tr>
               <th>Slug</th>
-              <th>Title</th>
+              <th>Name</th>
+              <th>City</th>
+              <th>Order</th>
               <th>Published</th>
               <th></th>
             </tr>
@@ -78,8 +92,10 @@ export default function PagesAdmin() {
               <tr key={r.id}>
                 <td>{r.slug}</td>
                 <td>
-                  <Link href={`/pages/${r.id}`}>{r.title}</Link>
+                  <Link href={`/stores/${r.id}`}>{r.name}</Link>
                 </td>
+                <td>{r.city}</td>
+                <td>{r.sortOrder}</td>
                 <td>{r.published ? "yes" : "no"}</td>
                 <td>
                   <button type="button" className="danger" onClick={() => remove(r.id)}>
@@ -92,22 +108,42 @@ export default function PagesAdmin() {
         </table>
       )}
       <form className="panel" onSubmit={create}>
-        <h2>New page</h2>
+        <h2>New showroom</h2>
         <label>
           Slug
           <input name="slug" required />
         </label>
         <label>
-          Title
-          <input name="title" required />
+          Name
+          <input name="name" required />
         </label>
         <label>
-          Body
-          <textarea name="body" />
+          City
+          <input name="city" />
         </label>
         <label>
-          Hero image URL
-          <input name="heroImageUrl" placeholder="https://…" />
+          Country
+          <input name="country" />
+        </label>
+        <label>
+          Address
+          <input name="address" />
+        </label>
+        <label>
+          Phone
+          <input name="phone" />
+        </label>
+        <label>
+          Hours note
+          <input name="hoursNote" />
+        </label>
+        <label>
+          Map URL
+          <input name="mapUrl" placeholder="https://…" />
+        </label>
+        <label>
+          Sort order
+          <input name="sortOrder" type="number" defaultValue={0} />
         </label>
         <label className="row-check">
           <input name="published" type="checkbox" />

@@ -23,29 +23,35 @@ export default async function ProductDetail({
 
   if (!product) {
     return (
-      <>
-        <p className="muted">Product not found.</p>
-        <p>
-          <Link href="/products">Back to products</Link>
-        </p>
-      </>
+      <div className="lux-main">
+        <div className="lux-page">
+          <p className="muted">Piece not found.</p>
+          <Link href="/products">← Collections</Link>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
-      <p className="muted">
-        <Link href="/products">← Products</Link>
-      </p>
-      <section className="hero" style={{ borderBottom: "none", marginBottom: 0 }}>
-        <h1>{product.title}</h1>
-        <p>{product.summary}</p>
-      </section>
-      {product.description && (
-        <div style={{ maxWidth: "40rem", marginTop: "1rem" }}>
-          <p style={{ whiteSpace: "pre-wrap" }}>{product.description}</p>
+    <div className="lux-main">
+      <div className="lux-product-hero">
+        <p className="muted" style={{ marginBottom: "1rem" }}>
+          <Link href="/products">← Collections</Link>
+        </p>
+        <div className="lux-product-hero-grid">
+          <div className="lux-product-visual">
+            {product.imageUrl ? <img src={product.imageUrl} alt="" /> : null}
+          </div>
+          <div className="lux-product-detail">
+            <p className="lux-tile-label" style={{ marginBottom: "0.5rem" }}>
+              Piece
+            </p>
+            <h1>{product.title}</h1>
+            <p className="lux-summary">{product.summary}</p>
+            {product.description ? <p className="lux-prose">{product.description}</p> : null}
+          </div>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
