@@ -1,0 +1,20 @@
+{
+  "name": "website_overseas",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev": "pnpm run --parallel \"/^dev:.*/\"",
+    "dev:server": "pnpm --filter @repo/server dev",
+    "dev:web": "pnpm --filter @repo/web dev",
+    "dev:admin": "pnpm --filter @repo/admin dev",
+    "build": "pnpm run db:generate && pnpm --filter @repo/database build && pnpm run -r --filter './apps/*' build",
+    "db:generate": "pnpm --filter @repo/database exec prisma generate",
+    "db:migrate": "pnpm --filter @repo/database exec prisma migrate deploy",
+    "db:migrate:dev": "pnpm --filter @repo/database exec prisma migrate dev",
+    "db:push": "pnpm --filter @repo/database exec prisma db push",
+    "db:seed": "pnpm --filter @repo/database exec prisma db seed",
+    "db:reset": "pnpm --filter @repo/database exec prisma migrate reset --force",
+    "lint": "pnpm run -r --if-present lint",
+    "typecheck": "pnpm run -r --if-present typecheck"
+  }
+}
